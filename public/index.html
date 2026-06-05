@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KABIT.LOL | Physics-Based Arena Shooting</title>
+  <!-- Google Fonts for modern arcade sci-fi look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background moving grid -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <!-- MAIN CONTAINER -->
+  <div id="app-container">
+
+    <!-- 1. SERVER ROOM SELECTION SCREEN -->
+    <div id="room-selection" class="menu-card active">
+      <header class="menu-header">
+        <h1 class="logo-glow">KABIT.LOL</h1>
+        <p class="tagline">Select Physics Server</p>
+      </header>
+      
+      <div class="room-content-wrapper">
+        <div class="glass-section server-creation-section">
+          <h3 class="section-title">Create Custom Server Room</h3>
+          <div class="create-room-row">
+            <input type="text" id="new-room-input" placeholder="Enter custom room name..." maxlength="18">
+            <button id="create-room-btn" class="simple-glow-btn">CREATE</button>
+          </div>
+        </div>
+
+        <div class="glass-section server-list-section">
+          <h3 class="section-title">Active Server Rooms</h3>
+          <div class="room-grid" id="room-grid">
+            <!-- Dynamically populated room selectors -->
+            <div class="loading-rooms">Connecting to servers...</div>
+          </div>
+        </div>
+      </div>
+      
+      <button id="settings-open-btn-room" class="settings-cog-icon">⚙️ Settings</button>
+    </div>
+    
+    <!-- 2. PLAYER PROFILE LOBBY MENU -->
+    <div id="lobby-menu" class="menu-card">
+      <header class="menu-header">
+        <h1 class="logo-glow" id="active-room-title">ROOM_NAME</h1>
+        <p class="tagline">Setup Identity & Ready Up</p>
+      </header>
+
+      <div class="menu-content">
+        <!-- LEFT: Profile & Settings -->
+        <div class="menu-left">
+          <div class="glass-section input-section">
+            <h3 class="section-title">Identity</h3>
+            <div class="input-wrapper">
+              <label for="nickname-input">NICKNAME</label>
+              <input type="text" id="nickname-input" placeholder="Player" maxlength="14" autocomplete="off">
+            </div>
+            
+            <div class="color-picker-wrapper">
+              <label>PLAYER COLOR</label>
+              <div class="color-options" id="color-options">
+                <button class="color-dot active" data-color="#00f0ff" style="background-color: #00f0ff;"></button>
+                <button class="color-dot" data-color="#ff00ff" style="background-color: #ff00ff;"></button>
+                <button class="color-dot" data-color="#39ff14" style="background-color: #39ff14;"></button>
+                <button class="color-dot" data-color="#ffff00" style="background-color: #ffff00;"></button>
+                <button class="color-dot" data-color="#ff6600" style="background-color: #ff6600;"></button>
+                <button class="color-dot" data-color="#b026ff" style="background-color: #b026ff;"></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-section lobby-list-section">
+            <h3 class="section-title">Lobby Players</h3>
+            <div class="lobby-roster" id="lobby-roster">
+              <!-- Dynamically populated roster -->
+            </div>
+          </div>
+
+          <div class="ready-buttons-row">
+            <button id="lobby-back-btn" class="glow-button grey-glow">BACK TO SERVERS</button>
+            <button id="ready-btn" class="glow-button">ENTER ARENA</button>
+          </div>
+        </div>
+
+        <!-- RIGHT: Weapon Selection -->
+        <div class="menu-right">
+          <h3 class="section-title">Choose Your Weapon</h3>
+          <div class="gun-cards-container" id="gun-cards">
+            
+            <!-- Pistol -->
+            <div class="gun-card active" data-gun="pistol">
+              <div class="gun-header">
+                <span class="gun-name">PISTOL</span>
+                <span class="gun-badge" style="color: #00f0ff; box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);">Standard</span>
+              </div>
+              <div class="gun-description">Balanced starting gun. Decent recoil for basic mobility. Bouncy bullets.</div>
+              <div class="gun-stats">
+                <div class="stat-row"><span class="stat-label">Recoil</span><div class="stat-bar"><div class="stat-fill" style="width: 35%; background: #00f0ff;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Velocity</span><div class="stat-bar"><div class="stat-fill" style="width: 55%; background: #00f0ff;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Bounces</span><div class="stat-bar"><div class="stat-fill" style="width: 80%; background: #00f0ff;"></div></div></div>
+              </div>
+            </div>
+
+            <!-- Shotgun -->
+            <div class="gun-card" data-gun="shotgun">
+              <div class="gun-header">
+                <span class="gun-name">SHOTGUN</span>
+                <span class="gun-badge" style="color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);">Burst</span>
+              </div>
+              <div class="gun-description">Fires 5 pellets in a spread. Massive recoil. Perfect for flying recoil jumps.</div>
+              <div class="gun-stats">
+                <div class="stat-row"><span class="stat-label">Recoil</span><div class="stat-bar"><div class="stat-fill" style="width: 85%; background: #ff00ff;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Velocity</span><div class="stat-bar"><div class="stat-fill" style="width: 50%; background: #ff00ff;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Bounces</span><div class="stat-bar"><div class="stat-fill" style="width: 25%; background: #ff00ff;"></div></div></div>
+              </div>
+            </div>
+
+            <!-- Sniper -->
+            <div class="gun-card" data-gun="sniper">
+              <div class="gun-header">
+                <span class="gun-name">SNIPER RAIL</span>
+                <span class="gun-badge" style="color: #ffff00; box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);">Precision</span>
+              </div>
+              <div class="gun-description">Ultra-fast projectile, zero bounce. Tremendous recoil and direct impact knockback.</div>
+              <div class="gun-stats">
+                <div class="stat-row"><span class="stat-label">Recoil</span><div class="stat-bar"><div class="stat-fill" style="width: 100%; background: #ffff00;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Velocity</span><div class="stat-bar"><div class="stat-fill" style="width: 100%; background: #ffff00;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Bounces</span><div class="stat-bar"><div class="stat-fill" style="width: 0%; background: #ffff00;"></div></div></div>
+              </div>
+            </div>
+
+            <!-- Rocket Launcher -->
+            <div class="gun-card" data-gun="rocket">
+              <div class="gun-header">
+                <span class="gun-name">ROCKET</span>
+                <span class="gun-badge" style="color: #ff6600; box-shadow: 0 0 10px rgba(255, 102, 0, 0.3);">Explosive</span>
+              </div>
+              <div class="gun-description">Slow projectile, explodes on contact. Knockback blasts affect nearby players.</div>
+              <div class="gun-stats">
+                <div class="stat-row"><span class="stat-label">Recoil</span><div class="stat-bar"><div class="stat-fill" style="width: 65%; background: #ff6600;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Velocity</span><div class="stat-bar"><div class="stat-fill" style="width: 30%; background: #ff6600;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Bounces</span><div class="stat-bar"><div class="stat-fill" style="width: 0%; background: #ff6600;"></div></div></div>
+              </div>
+            </div>
+
+            <!-- Machine Gun -->
+            <div class="gun-card" data-gun="machinegun">
+              <div class="gun-header">
+                <span class="gun-name">MACHINE GUN</span>
+                <span class="gun-badge" style="color: #39ff14; box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);">Rapid</span>
+              </div>
+              <div class="gun-description">High rate of fire, low single-shot recoil. Hold shoot downwards to fly!</div>
+              <div class="gun-stats">
+                <div class="stat-row"><span class="stat-label">Recoil</span><div class="stat-bar"><div class="stat-fill" style="width: 15%; background: #39ff14;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Velocity</span><div class="stat-bar"><div class="stat-fill" style="width: 65%; background: #39ff14;"></div></div></div>
+                <div class="stat-row"><span class="stat-label">Bounces</span><div class="stat-bar"><div class="stat-fill" style="width: 25%; background: #39ff14;"></div></div></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      
+      <button id="settings-open-btn-lobby" class="settings-cog-icon">⚙️ Settings</button>
+    </div>
+
+    <!-- 3. MAIN GAMEPLAY CANVAS SECTION -->
+    <div id="game-container" class="hidden">
+      <!-- HUD Overlay -->
+      <div id="hud">
+        <div class="hud-left">
+          <div class="hud-item glass-mini" id="hud-match-state">ARENA BATTLE</div>
+          <div class="hud-item glass-mini" id="hud-room-name">ROOM</div>
+        </div>
+        <div class="hud-right">
+          <!-- Scoreboard / Leaderboard -->
+          <div class="scoreboard glass-mini">
+            <div class="scoreboard-title">LEADERBOARD (KILLS)</div>
+            <div class="scoreboard-entries" id="scoreboard-entries">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="canvas-wrapper">
+        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+        
+        <!-- IN-GAME CHAT AREA OVERLAY -->
+        <div id="chat-container">
+          <div id="chat-logs"></div>
+          <div id="chat-bar-row">
+            <input type="text" id="chat-input" placeholder="Press [Enter] to send chat message..." maxlength="70" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <!-- In-game bottom bar -->
+      <div class="game-footer">
+        <div class="glass-mini control-tip">
+          <span><b style="color: #00f0ff;">[A][D]</b> Move</span> | 
+          <span><b style="color: #00f0ff;">[Space]</b> Jump</span> | 
+          <span><b style="color: #ff00ff;">[Click]</b> Shoot</span> | 
+          <span><b style="color: #ffff00;">[Enter]</b> Chat</span> | 
+          <span><b style="color: #ff3333;">[Esc]</b> Leave Game</span>
+        </div>
+        <div class="glass-mini weapon-indicator" id="weapon-indicator">
+          WEAPON: <span id="active-weapon-name" style="font-weight: bold; color: #00f0ff;">PISTOL</span>
+          <div class="cooldown-radial-bg">
+            <div class="cooldown-bar" id="weapon-cooldown-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. FAILED / ELIMINATED DEATH SCREEN -->
+    <div id="death-screen" class="hud-overlay hidden">
+      <div class="winner-box glass-card death-box">
+        <div class="announcement-title death-title">ELIMINATED</div>
+        <div class="death-status" id="death-status-text">
+          Killed by <span id="killer-name" style="color: #ff0055;">Opponent</span>
+        </div>
+        <div class="spectate-sub" id="spectate-subtext">Spectating killer...</div>
+        <div class="rematch-timer" id="respawn-timer-text">Respawning in 5s</div>
+        <div class="death-buttons">
+          <button id="death-escape-btn" class="simple-glow-btn escape-red">LEAVE ROOM [ESC]</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. CONFIGURABLE SETTINGS MODAL -->
+    <div id="settings-modal" class="hud-overlay hidden">
+      <div class="winner-box glass-card settings-box">
+        <div class="announcement-title">OPTIONS</div>
+        
+        <div class="settings-content">
+          <!-- Master Sound Volume -->
+          <div class="setting-item">
+            <label for="settings-volume">Master Volume</label>
+            <div class="slider-wrapper">
+              <input type="range" id="settings-volume" min="0" max="100" value="80">
+              <span id="volume-val" class="setting-val-label">80%</span>
+            </div>
+          </div>
+
+          <!-- Screenshake Intensity -->
+          <div class="setting-item">
+            <label for="settings-screenshake">Screenshake Intensity</label>
+            <div class="slider-wrapper">
+              <input type="range" id="settings-screenshake" min="0" max="10" value="8">
+              <span id="screenshake-val" class="setting-val-label">8/10</span>
+            </div>
+          </div>
+
+          <!-- Laser Sight Style -->
+          <div class="setting-item">
+            <label for="settings-laser-style">Laser Sight Type</label>
+            <select id="settings-laser-style">
+              <option value="dashed">Dashed Laser</option>
+              <option value="solid">Solid Line</option>
+              <option value="none">Disabled</option>
+            </select>
+          </div>
+
+          <!-- Grid Lines Toggle -->
+          <div class="setting-item flex-row">
+            <label for="settings-grid">Show Game Grid</label>
+            <input type="checkbox" id="settings-grid" checked>
+          </div>
+        </div>
+
+        <button id="settings-close-btn" class="glow-button">SAVE & CLOSE</button>
+      </div>
+    </div>
+
+    <!-- KILL FEED -->
+    <div class="kill-feed" id="kill-feed"></div>
+
+  </div>
+
+  <!-- Socket.IO library and game scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
